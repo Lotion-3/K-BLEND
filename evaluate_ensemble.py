@@ -1,5 +1,16 @@
-# filename: evaluate_ensemble.py
-import torch, torch.nn as nn, numpy as np, time, os, csv, re, argparse, pickle, itertools, json, subprocess, sys
+import torch
+import torch.nn as nn
+import numpy as np
+import time
+import os
+import csv
+import re
+import argparse
+import pickle
+import itertools
+import json
+import subprocess
+import sys
 from multiprocessing import shared_memory
 from filelock import FileLock
 from Bio import SeqIO
@@ -20,7 +31,14 @@ ALL_6MERS = sorted(["".join(p) for p in itertools.product('ATGC', repeat=6)])
 NUM_KMER_FEATURES = len(ALL_3MERS) + len(ALL_5MERS) + len(ALL_6MERS)
 MODELS_TO_TRAIN = 25
 TOTAL_SEQUENCES = 11000
-CONFIG = {"FASTA_ROOT_DIR": "rawShuffledFasta", "MODELS_SAVE_DIR": "saved_models", "FINAL_LOG_FILE": "PIPELINE_RESULTS_HPC.csv", "KEY_FILE_NAME": "key.fasta"}
+
+# --- FIX ---
+# Removed FASTA_ROOT_DIR from CONFIG to allow for dynamic path handling.
+CONFIG = {
+    "MODELS_SAVE_DIR": "saved_models",
+    "FINAL_LOG_FILE": "PIPELINE_RESULTS_HPC.csv",
+    "KEY_FILE_NAME": "key.fasta"
+}
 
 # The SimpleNN class is no longer needed here, as the model architecture
 # is loaded directly from the saved file.
@@ -67,14 +85,22 @@ def main():
     parser.add_argument('--num-train-seqs', type=int, required=True)
     args = parser.parse_args()
 
+    # --- FIX #1: Dynamically determine the base data directory from the provided train file path ---
+    # This makes the script independent of the "rawShuffledFasta" directory name.
+    training_fastas_dir = os.path.dirname(args.train_file)
+    fasta_root_dir = os.path.dirname(training_fastas_dir)
+    
     train_filename = os.path.basename(args.train_file)
     base_name = os.path.splitext(train_filename)[0]
-    test_dir = os.path.join(CONFIG["FASTA_ROOT_DIR"], "testingFastas")
+    
+    # Use the dynamically found root directory to locate the testing folder
+    test_dir = os.path.join(fasta_root_dir, "testingFastas")
    
     version_num = -1
     test_filename = ""
     match_by_count = re.match(r'^train_(\d+)_(\d+)\.fasta$', train_filename)
     match_by_percent = re.match(r'^train(\d+)_(\d+)_(\d+)\.fasta$', train_filename)
+    
     if match_by_count:
         count, version = int(match_by_count.group(1)), int(match_by_count.group(2))
         version_num = version
@@ -86,9 +112,19 @@ def main():
         name_by_percent = f'test{100 - percent}_{total}_{version}.fasta'
         test_seq_count = total - (total * percent // 100)
         name_by_count = f'test_{test_seq_count}_{version}.fasta'
-        if os.path.exists(os.path.join(test_dir, name_by_percent)): test_filename = name_by_percent
-        elif os.path.exists(os.path.join(test_dir, name_by_count)): test_filename = name_by_count
-        else: test_filename = name_by_percent
+        
+        # --- FIX #2: Check for file existence and fail gracefully if not found ---
+        if os.path.exists(os.path.join(test_dir, name_by_percent)):
+            test_filename = name_by_percent
+        elif os.path.exists(os.path.join(test_dir, name_by_count)):
+            test_filename = name_by_count
+        else:
+            # If neither naming convention exists, exit with a clear error message.
+            print(f"[EVAL-FATAL] Could not find a matching test file for '{train_filename}'", file=sys.stderr)
+            print(f"             Searched in directory: '{test_dir}'", file=sys.stderr)
+            print(f"             Tried filename: '{name_by_percent}'", file=sys.stderr)
+            print(f"             And also tried: '{name_by_count}'", file=sys.stderr)
+            sys.exit(1)
     
     if not test_filename:
         print(f"[EVAL-FATAL] Could not determine test filename for {train_filename}", file=sys.stderr)
@@ -102,7 +138,14 @@ def main():
     try:
         extract_start_time = time.time()
         print(f"  [EVAL] Extracting features on-demand from {test_filename}...", file=sys.stderr)
-        variants_main = {rec.id: str(rec.seq) for rec in SeqIO.parse(CONFIG['KEY_FILE_NAME'], "fasta")}
+        
+        # Use the dynamic root path to locate the key file
+        key_file_path = os.path.join(fasta_root_dir, CONFIG['KEY_FILE_NAME'])
+        if not os.path.exists(key_file_path):
+             print(f"[EVAL-FATAL] Key file not found at expected path: {key_file_path}", file=sys.stderr)
+             sys.exit(1)
+        variants_main = {rec.id: str(rec.seq) for rec in SeqIO.parse(key_file_path, "fasta")}
+        
         test_data, num_test_seqs = extract_features_on_demand(test_filename_full_path, variants_main, VARIANT_TO_FLOAT)
         if test_data is None: raise ValueError(f"Test data extraction failed. Check if '{test_filename_full_path}' exists and is not empty.")
        
@@ -123,9 +166,6 @@ def main():
             model_path = os.path.join(job_models_save_dir, f'model_{model_idx}.pt')
             if not os.path.exists(model_path): continue
             
-            # --- THE FIX ---
-            # Load the entire model object, not just a state_dict.
-            # Set weights_only=False to allow loading of the model architecture.
             model = torch.load(model_path, map_location='cpu', weights_only=False)
 
             model.eval()
