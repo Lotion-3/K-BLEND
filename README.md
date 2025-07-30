@@ -35,8 +35,8 @@ pip install -r req.txt
 ```
 
 ## Data Information  
-All genomes compressed using 7z
-Extraction setup:
+All genomes compressed using 7z   
+Extraction setup:  
 ```bash
 sudo apt update
 ```
