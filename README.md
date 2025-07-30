@@ -68,7 +68,14 @@ Pre usage setup
 ```bash
 chmod +x SKALE356.sh
 ```
-2. Ramdisk setup
+2. C++ Setup
+```bash
+sudo apt update
+```
+```bash
+sudo apt install build-essential gdb
+```
+3. Ramdisk setup
 This example uses 8G of commited RAM, adjust to device specifications   
 ```bash
 sudo mkdir -p /mnt/ramdisk
