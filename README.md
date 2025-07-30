@@ -74,7 +74,7 @@ This example uses 8G of commited RAM, adjust to device specifications
 sudo mkdir -p /mnt/ramdisk
 ```
 ```bash
-sudo mount -t tmpgs -o size=8G tmpfs /mnt/ramdisk
+sudo mount -t tmpfs -o size=8G tmpfs /mnt/ramdisk
 ```
 ```bash
 sudo chown $USER:$USER /mnt/ramdisk
