@@ -120,6 +120,9 @@ Models are saved in saved_models/ directory.
 
 When finished clean ramdisk
 ```bash
+sudo umount /mnt/ramdisk
+```
+```bash
 sudo rm -r /mnt/ramdisk
 ```
 
