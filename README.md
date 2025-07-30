@@ -8,8 +8,8 @@ WSL setup directions
 ```bash
 wsl --install
 ```
-3. Download ubuntu for WSL https://ubuntu.com/desktop/wsl
-4. Open WSL
+2. Download ubuntu for WSL https://ubuntu.com/desktop/wsl
+3. Open WSL
 
 Virtual Environment setup  
 ```bash
@@ -36,10 +36,55 @@ pip install -r req.txt
 
 ## SKALE-356 Usage  
 Pre usage setup  
-1. .sh Permissions  
+1. Bash Permissions  
 ```bash
 chmod +x SKALE356.sh
 ```
-Run the SKALE356.sh file, this automated script trains 25 ensemble models and evaluated them.  
+2. Ramdisk setup
+This example uses 8G of commited RAM, adjust to device specifications
+```bash
+sudo mkdir -p /mnt/ramdisk
+```
+```bash
+sudo mount -t tmpgs -o size=8G tmpfs /mnt/ramdisk
+```
+```bash
+sudo chown $USER:$USER /mnt/ramdisk
+```
+```bash
+echo always | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+```
+Run the SKALE356.sh file, this automated script trains 25 ensemble models and provides evaluation data.  
+Execution arguments:  
+```bash
+./SKALE356.sh inputDirectory #cpuCores
+```
+The input directory expects two subdirectories, trainingFastas and testingFastas    
+The script recognizes 2 naming systems for train test pairs  
+1. Train: train%Train_11000_version# Test: test%test_11000_version#  
+Ex. Train: train90_11000_5 Test: test10_11000_5  
+Version numbers must match and percentages must add to 100  
+2. Train: train_#sequences_version# Test: test_#sequences_version#
+Ex. Train: train_110_1 Test: test_10890_1  
+Number of sequences must add to 11000 and version numbers must match  
+
+The #cpuCores decides how many system cpuCores are dedicated to the execution.   
+Train+Test pairs are processed simultaneously. Each dedicated core handles one pair.  
+Default is half of system cores. Recommended maximum is the number of system cores -1.
+
+Example usage with sampleFastas:  
+```bash
+./SKALE356.sh sampleFastas 2
+```
 Evaluation information is saved in the PIPELINE_HPC_RESULTS.csv file.  
-Models are saved in saved_models/ directory  
+Models are saved in saved_models/ directory.  
+
+When finished clean ramdisk
+```bash
+sudo rm -r /mnt/ramdisk
+```
+
+## BLAST Benchmark usage
+Download NCBI BLAST tool from: 
+https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
+
