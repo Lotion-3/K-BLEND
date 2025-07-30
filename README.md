@@ -75,7 +75,11 @@ sudo apt update
 ```bash
 sudo apt install build-essential gdb
 ```
-3. Ramdisk setup
+3. Jq setup
+```bash
+sudo apt-get install jq
+```
+4. Ramdisk setup
 This example uses 8G of commited RAM, adjust to device specifications   
 ```bash
 sudo mkdir -p /mnt/ramdisk
