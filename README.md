@@ -35,7 +35,7 @@ pip install -r req.txt
 ```
 
 ## Data Information  
-This experiment utilized 11000 SARS-CoV-2 genomes from 11 strains. Alpha, Beta, Delta, Epsilon, Eta, Gamma, Iota, Lambda, Mu, Omicron  
+This experiment utilized 11000 SARS-CoV-2 genomes from 11 strains. Alpha, Beta, Delta, Epsilon, Eta, Gamma, Iota, Lambda, Mu, Omicron, Zeta  
 Sourced from NGDC: https://ngdc.cncb.ac.cn/  
 Full data set is available in rawFastas folder  
 combine_fasta.py file combined all 11000 into comb11000.fasta and generated key.fasta.     
