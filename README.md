@@ -108,7 +108,7 @@ Ex. Train: train_110_1 Test: test_10890_1
 Number of sequences must add to 11000 and version numbers must match  
 
 The #cpuCores decides how many system cpuCores are dedicated to the execution.   
-Train+Test pairs are processed simultaneously. Each dedicated core handles one pair.  
+Train+Test pairs are processed one at a time. The 25 models are distributed amongst dedicated cores. One model per core.
 Default is half of system cores. Recommended maximum is the number of system cores -1.  
 
 Usage with sampleFastas:  
