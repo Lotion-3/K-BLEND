@@ -140,7 +140,7 @@ def main():
         print(f"  [EVAL] Extracting features on-demand from {test_filename}...", file=sys.stderr)
         
         # Use the dynamic root path to locate the key file
-        key_file_path = os.path.join(fasta_root_dir, CONFIG['KEY_FILE_NAME'])
+        key_file_path = CONFIG['KEY_FILE_NAME']
         if not os.path.exists(key_file_path):
              print(f"[EVAL-FATAL] Key file not found at expected path: {key_file_path}", file=sys.stderr)
              sys.exit(1)
