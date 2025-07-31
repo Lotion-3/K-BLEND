@@ -115,7 +115,7 @@ Usage with sampleFastas:
 ```bash
 ./SKALE356.sh sampleFastas 2
 ```
-Evaluation information is saved in the PIPELINE_HPC_RESULTS.csv file.  
+Evaluation information is saved in the PIPELINE_RESULTS_HPC.csv file.  
 Models are saved in saved_models/ directory.  
 
 When finished clean ramdisk
