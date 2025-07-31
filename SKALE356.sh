@@ -142,4 +142,4 @@ while IFS= read -r fasta_file; do
     echo ""
 done < <(echo "${files_to_process}")
 
-echo "✅ Batch processing complete. ✅"```
+echo "✅ Batch processing complete. ✅"
