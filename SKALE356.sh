@@ -143,21 +143,3 @@ while IFS= read -r fasta_file; do
 done < <(echo "${files_to_process}")
 
 echo "✅ Batch processing complete. ✅"```
-
-### How to Use the Updated Script
-
-You now have two ways to run the script:
-
-1.  **With Default Concurrent Jobs:**
-    (Let's say your machine has 16 cores; this will set `CONCURRENT_JOBS` to 8)
-    ```bash
-    ./run_batch.sh rawShuffledFasta
-    ```
-
-2.  **With a Specific Number of Concurrent Jobs:**
-    (This will override the default and set `CONCURRENT_JOBS` to 12)
-    ```bash
-    ./run_batch.sh rawShuffledFasta 12
-    ```
-
-The script is now significantly more adaptable to different machines and user preferences.
