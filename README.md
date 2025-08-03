@@ -13,7 +13,7 @@ wsl --install
 
 Virtual Environment setup  
 ```bash
-git clone https://github.com/Lotion-3/Ensemble
+git clone https://github.com/Lotion-3/K-BLEND
 ```
 ```bash
 cd Ensemble
