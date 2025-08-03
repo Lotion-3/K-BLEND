@@ -1,4 +1,4 @@
-# SKALE-356
+# K-BLEND
 
 ## Setup
 
@@ -13,10 +13,10 @@ wsl --install
 
 Virtual Environment setup  
 ```bash
-git clone https://github.com/Lotion-3/SKALE-356
+git clone https://github.com/Lotion-3/Ensemble
 ```
 ```bash
-cd SKALE-356
+cd Ensemble
 ```
 ```bash
 sudo apt update
@@ -25,10 +25,10 @@ sudo apt update
 sudo apt install python3-venv
 ```
 ```bash
-python3 -m venv SKALE356env
+python3 -m venv Ensemble6env
 ```
 ```bash
-source SKALE356env/bin/activate
+source Ensembleenv/bin/activate
 ```
 ```bash
 pip install -r req.txt
@@ -62,11 +62,11 @@ Available in sampleFastas folder. Extracts to 635MB.
 
 The complete tables used in the paper are available in fullPaperTables along with code used to generate figures.  
 
-## SKALE-356 Usage  
+## Ensemble Usage  
 Pre usage setup  
 1. Bash Permissions  
 ```bash
-chmod +x SKALE356.sh
+chmod +x Ensemble.sh
 ```
 2. C++ Setup
 ```bash
@@ -93,10 +93,10 @@ sudo chown $USER:$USER /mnt/ramdisk
 ```bash
 echo always | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
 ```
-Run the SKALE356.sh file, this automated script trains 25 ensemble models and provides evaluation data.  
+Run the Ensemble.sh file, this automated script trains 25 ensemble models and provides evaluation data.  
 Execution arguments:  
 ```bash
-./SKALE356.sh inputDirectory #cpuCores
+./Ensemble.sh inputDirectory #cpuCores
 ```
 The input directory expects two subdirectories, trainingFastas and testingFastas    
 The script recognizes 2 naming systems for train test pairs  
@@ -113,7 +113,7 @@ Default is half of system cores. Recommended maximum is the number of system cor
 
 Usage with sampleFastas:  
 ```bash
-./SKALE356.sh sampleFastas 2
+./Ensemble.sh sampleFastas 2
 ```
 Evaluation information is saved in the PIPELINE_RESULTS_HPC.csv file.  
 Models are saved in saved_models/ directory.  
@@ -129,7 +129,7 @@ sudo rm -r /mnt/ramdisk
 ## BLAST Benchmark usage
 Download NCBI BLAST tool from: 
 https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/  
-Place in SKALE-356 directory  
+Place in Ensemble directory  
 Execution arguments:
 ```bash
 python3 blastTesting.py inputDirectory
@@ -150,5 +150,6 @@ python3 blastTesting.py sampleFastas
 
 Evaluation information is saved in blast_performance_metrics.csv  
 Raw results in blastOutput folder  
+
 
 
