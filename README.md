@@ -127,7 +127,7 @@ sudo rm -r /mnt/ramdisk
 ```
 
 ## BLAST Benchmark usage
-Download NCBI BLAST tool from: 
+Download NCBI BLAST 2.16.0+ tool from: 
 https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/  
 Place in Ensemble directory  
 Execution arguments:
