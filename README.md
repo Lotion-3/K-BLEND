@@ -25,7 +25,7 @@ sudo apt update
 sudo apt install python3-venv
 ```
 ```bash
-python3 -m venv Ensemble6env
+python3 -m venv Ensembleenv
 ```
 ```bash
 source Ensembleenv/bin/activate
