@@ -80,41 +80,6 @@ def load_and_clean_data(mlp_path, blast_path):
 # === 2. FIGURE GENERATION FUNCTIONS (ARCHIVAL MODE)
 # =============================================================================
 
-def generate_figure_1_blueprint(output_dir):
-    """Generates the SKALE 356 blueprint diagram and saves it to the output directory."""
-    print("\n>>> GENERATING FIGURE 1: The SKALE 356 Blueprint...")
-    dot = Digraph('SKALE_356_Blueprint')
-    dot.attr(rankdir='TB', splines='ortho', nodesep='0.6', ranksep='1.0', label='Figure 1. The SKALE 356 Blueprint', labelloc='b', fontsize='20', fontname='Arial')
-    dot.attr('node', style='filled', fontname='Arial', fontsize='12', color='black')
-    dot.attr('edge', fontname='Arial', fontsize='10', color='black')
-    with dot.subgraph(name='cluster_training') as c:
-        c.attr(label='A) The One-Time Training Pipeline', style='filled', color='black', fillcolor='grey97', fontname='Arial-Bold', fontsize='16')
-        c.node('train_input', 'Input: Training Genomes\n(FASTA Files)', shape='box', fillcolor='whitesmoke')
-        c.node('extract_train', 'Bit-wise Feature Extraction\n(C++)', shape='box', fillcolor='skyblue')
-        c.node('adaptive_config', 'Adaptive Configuration\n(Architecture, Dropout, L1)', shape='box', style='filled', fillcolor='gold')
-        c.node('ensemble_training', 'Parallel Ensemble Training\n(25 Models)', shape='box', style='filled', fillcolor='lightblue')
-        c.node('final_model', 'Final Trained Ensemble', shape='cylinder', fillcolor='mediumseagreen', fontcolor='white')
-        c.edge('train_input', 'extract_train')
-        c.edge('extract_train', 'adaptive_config', label='Feature Vectors')
-        c.edge('adaptive_config', 'ensemble_training', label='Model Configs')
-        c.edge('ensemble_training', 'final_model', label='Creates')
-    with dot.subgraph(name='cluster_inference') as c:
-        c.attr(label='B) The Rapid Inference Pipeline', style='filled', color='black', fillcolor='grey97', fontname='Arial-Bold', fontsize='16')
-        c.node('test_input', 'Input: New Unseen Genome\n(FASTA File)', shape='box', fillcolor='whitesmoke')
-        c.node('extract_features', 'Bit-wise Feature Extraction\n(C++)', shape='box', fillcolor='skyblue')
-        c.node('prediction_committee', 'Prediction from 25 Models', shape='box', fillcolor='lightblue')
-        c.node('aggregate', 'Aggregate Predictions\n(Majority Vote)', shape='octagon', fillcolor='gold')
-        c.node('final_prediction', 'Final Classification', shape='box3d', fillcolor='mediumseagreen', fontcolor='white')
-        c.edge('test_input', 'extract_features')
-        c.edge('extract_features', 'prediction_committee', label='Feature Vector')
-        c.edge('prediction_committee', 'aggregate')
-        c.edge('aggregate', 'final_prediction')
-    dot.edge('final_model', 'prediction_committee', label=' Use for Prediction ', style='bold,dashed', fontsize='11', fontcolor='firebrick')
-
-    # Use pathlib to create an OS-agnostic path. Render expects a string.
-    filename_base = output_dir / 'Figure_1_Blueprint'
-    dot.render(str(filename_base), format='png', view=False, cleanup=True)
-    print(f"  - SUCCESS: Figure saved as '{filename_base.with_suffix('.png')}'")
 
 
 def generate_figure_2_condensed_facet_plot(mlp_data, blast_data, blast_available, output_dir):
@@ -126,7 +91,7 @@ def generate_figure_2_condensed_facet_plot(mlp_data, blast_data, blast_available
     high_data_exps = [e for e in all_experiments if exp_info.loc[exp_info['experiment'] == e, 'num_train_seqs'].iloc[0] >= 1000]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(22, 9), sharey=False)
-    fig.suptitle('Ensemble Performance vs. BLAST Baseline', fontsize=20, weight='bold')
+    fig.suptitle('ensemble Performance vs. BLAST Baseline', fontsize=20, weight='bold')
 
     colors_low = sns.color_palette("Set1", n_colors=len(low_data_exps))
     colors_high = sns.color_palette("tab10", n_colors=len(high_data_exps))
@@ -138,13 +103,13 @@ def generate_figure_2_condensed_facet_plot(mlp_data, blast_data, blast_available
         ensemble_data = mlp_data[(mlp_data['experiment'] == exp) & (mlp_data['run_type'] == 'ensemble')].sort_values('model_id_or_k')
         final_f1 = ensemble_data.loc[ensemble_data['model_id_or_k'] == 25, 'f1_macro_mean'].iloc[0]
         blast_score = blast_data.loc[blast_data['experiment'] == exp, 'f1_macro_mean'].iloc[0]
-        print(f"    - EXP: {exp} ({num_seqs} genomes) | Final SKALE F1: {final_f1:.4f} | BLAST F1: {blast_score:.4f}")
+        print(f"    - EXP: {exp} ({num_seqs} genomes) | Final ensemble F1: {final_f1:.4f} | BLAST F1: {blast_score:.4f}")
         ax1.plot(ensemble_data['model_id_or_k'], ensemble_data['f1_macro_mean'], color=colors_low[i], linestyle='-')
         if blast_available:
             ax1.axhline(y=blast_score, color=colors_low[i], linestyle='--')
 
     ax1.set_title('(A) Low-Data Scenarios', fontsize=16)
-    ax1.set_xlabel('Ensemble Size (k)', fontsize=14)
+    ax1.set_xlabel('ensemble Size (k)', fontsize=14)
     ax1.set_ylabel('Macro F1-Score', fontsize=14)
 
     print("\n  [PANEL B: HIGH-DATA SCENARIOS]")
@@ -154,7 +119,7 @@ def generate_figure_2_condensed_facet_plot(mlp_data, blast_data, blast_available
         ensemble_data = mlp_data[(mlp_data['experiment'] == exp) & (mlp_data['run_type'] == 'ensemble')].sort_values('model_id_or_k')
         final_f1 = ensemble_data.loc[ensemble_data['model_id_or_k'] == 25, 'f1_macro_mean'].iloc[0]
         blast_score = blast_data.loc[blast_data['experiment'] == exp, 'f1_macro_mean'].iloc[0]
-        print(f"    - EXP: {exp} ({num_seqs} genomes) | Final SKALE F1: {final_f1:.4f} | BLAST F1: {blast_score:.4f}")
+        print(f"    - EXP: {exp} ({num_seqs} genomes) | Final ensemble F1: {final_f1:.4f} | BLAST F1: {blast_score:.4f}")
         ax2.plot(ensemble_data['model_id_or_k'], ensemble_data['f1_macro_mean'], color=colors_high[i], linestyle='-')
         all_y_values.extend(ensemble_data['f1_macro_mean'])
         if blast_available:
@@ -164,7 +129,7 @@ def generate_figure_2_condensed_facet_plot(mlp_data, blast_data, blast_available
     if all_y_values:
         ax2.set_ylim(min(all_y_values) - 0.0005, 1.0001)
     ax2.set_title('(B) High-Data Scenarios (Zoomed)', fontsize=16)
-    ax2.set_xlabel('Ensemble Size (k)', fontsize=14)
+    ax2.set_xlabel('ensemble Size (k)', fontsize=14)
 
     legend_handles = []
     for i, exp in enumerate(low_data_exps):
@@ -173,7 +138,7 @@ def generate_figure_2_condensed_facet_plot(mlp_data, blast_data, blast_available
     for i, exp in enumerate(high_data_exps):
         num_seqs = exp_info.loc[exp_info['experiment'] == exp, 'num_train_seqs'].iloc[0]
         legend_handles.append(Line2D([0], [0], color=colors_high[i], lw=2, label=f'{num_seqs} genomes (High)'))
-    legend_handles.append(Line2D([0], [0], color='black', linestyle='-', lw=2, label='SKALE 356 Ensemble'))
+    legend_handles.append(Line2D([0], [0], color='black', linestyle='-', lw=2, label='ensemble 356 ensemble'))
     legend_handles.append(Line2D([0], [0], color='black', linestyle='--', lw=2, label='BLAST Baseline'))
     fig.legend(handles=legend_handles, loc='center right', title='Legend', bbox_to_anchor=(1.0, 0.5))
 
@@ -186,35 +151,35 @@ def generate_figure_2_condensed_facet_plot(mlp_data, blast_data, blast_available
 def generate_figure_3_hybrid_crossover_plot(mlp_data, blast_data, blast_available, output_dir):
     """Generates the performance crossover and stability deep-dive plot."""
     print("\n>>> GENERATING FIGURE 3: The Master Plot - Crossover & Stability Deep Dive...")
-    skale_data = mlp_data[(mlp_data['run_type'] == 'ensemble') & (mlp_data['model_id_or_k'] == 25)].sort_values('num_train_seqs').copy()
+    ensemble_data = mlp_data[(mlp_data['run_type'] == 'ensemble') & (mlp_data['model_id_or_k'] == 25)].sort_values('num_train_seqs').copy()
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 10), gridspec_kw={'width_ratios': [3, 2]})
     fig.suptitle('Analytical Crossover and High-Data Stability Comparison', fontsize=20, weight='bold')
 
     def logistic_func(x, L, k, x0): return L / (1 + np.exp(-k * (x - x0)))
-    x_skale_log = np.log10(skale_data['num_train_seqs'])
-    y_skale = skale_data['f1_macro_mean']
-    popt_skale, _ = curve_fit(logistic_func, x_skale_log, y_skale, p0=[max(y_skale), 1, np.median(x_skale_log)], maxfev=5000)
-    L_skale, k_skale, x0_skale = popt_skale
+    x_ensemble_log = np.log10(ensemble_data['num_train_seqs'])
+    y_ensemble = ensemble_data['f1_macro_mean']
+    popt_ensemble, _ = curve_fit(logistic_func, x_ensemble_log, y_ensemble, p0=[max(y_ensemble), 1, np.median(x_ensemble_log)], maxfev=5000)
+    L_ensemble, k_ensemble, x0_ensemble = popt_ensemble
     popt_blast = np.polyfit(np.log10(blast_data['num_train_seqs']), blast_data['f1_macro_mean'], 1)
     blast_fit_func = np.poly1d(popt_blast)
     m_blast, b_blast = popt_blast
-    def difference(log_x): return logistic_func(log_x, *popt_skale) - blast_fit_func(log_x)
+    def difference(log_x): return logistic_func(log_x, *popt_ensemble) - blast_fit_func(log_x)
     log_crossover_x = fsolve(difference, x0=np.log10(500))[0]
     crossover_x = 10**log_crossover_x
-    crossover_y = logistic_func(log_crossover_x, *popt_skale)
+    crossover_y = logistic_func(log_crossover_x, *popt_ensemble)
 
     print("\n  --- DIAGNOSTICS FOR FIGURE 3 ---")
-    print("  SKALE 356 Data (k=25) used for fitting:")
-    print(skale_data[['num_train_seqs', 'f1_macro_mean', 'f1_macro_std', 'f1_macro_min', 'f1_macro_max']].to_string(index=False))
+    print("  ensemble 356 Data (k=25) used for fitting:")
+    print(ensemble_data[['num_train_seqs', 'f1_macro_mean', 'f1_macro_std', 'f1_macro_min', 'f1_macro_max']].to_string(index=False))
     print("\n  BLAST Data used for fitting:")
     print(blast_data[['num_train_seqs', 'f1_macro_mean', 'f1_macro_std', 'f1_macro_min', 'f1_macro_max']].to_string(index=False))
-    print(f"\n  SKALE Logistic Fit Parameters (L, k, x0): {popt_skale}")
-    print(f"    - EQUATION: F1(N) = {L_skale:.4f} / (1 + exp(-{k_skale:.4f} * (log10(N) - {x0_skale:.4f})))")
+    print(f"\n  ensemble Logistic Fit Parameters (L, k, x0): {popt_ensemble}")
+    print(f"    - EQUATION: F1(N) = {L_ensemble:.4f} / (1 + exp(-{k_ensemble:.4f} * (log10(N) - {x0_ensemble:.4f})))")
     print(f"  BLAST Linear Fit Parameters (slope, intercept): {popt_blast}")
     print(f"    - EQUATION: F1(N) = {m_blast:.4f} * log10(N) + {b_blast:.4f}")
     print(f"\n  *** CALCULATED CROSSOVER POINT: {crossover_x:.2f} genomes ***")
 
-    for _, row in skale_data.iterrows():
+    for _, row in ensemble_data.iterrows():
         x, y, std, y_min, y_max = row['num_train_seqs'], row['f1_macro_mean'], row['f1_macro_std'], row['f1_macro_min'], row['f1_macro_max']
         ax1.plot([x, x], [y_min, y_max], color='gray', linewidth=1.5, zorder=1)
         ax1.plot([x, x], [y - std, y + std], color='deepskyblue', linewidth=6, solid_capstyle='round', zorder=2, alpha=0.7)
@@ -224,10 +189,10 @@ def generate_figure_3_hybrid_crossover_plot(mlp_data, blast_data, blast_availabl
             ax1.plot([x, x], [y_min, y_max], color='gray', linewidth=1.5, zorder=1)
             ax1.plot([x, x], [y - std, y + std], color='red', linewidth=6, solid_capstyle='round', zorder=2, alpha=0.7)
 
-    ax1.scatter(skale_data['num_train_seqs'], skale_data['f1_macro_mean'], color='blue', s=100, ec='white', zorder=10)
+    ax1.scatter(ensemble_data['num_train_seqs'], ensemble_data['f1_macro_mean'], color='blue', s=100, ec='white', zorder=10)
     ax1.scatter(blast_data['num_train_seqs'], blast_data['f1_macro_mean'], color='darkred', marker='s', s=100, ec='white', zorder=9)
-    x_smooth = np.logspace(np.log10(skale_data['num_train_seqs'].min()), np.log10(skale_data['num_train_seqs'].max()), 400)
-    ax1.plot(x_smooth, logistic_func(np.log10(x_smooth), *popt_skale), color='blue', linewidth=3)
+    x_smooth = np.logspace(np.log10(ensemble_data['num_train_seqs'].min()), np.log10(ensemble_data['num_train_seqs'].max()), 400)
+    ax1.plot(x_smooth, logistic_func(np.log10(x_smooth), *popt_ensemble), color='blue', linewidth=3)
     blast_fit_y = blast_fit_func(np.log10(x_smooth))
     ax1.plot(x_smooth, np.minimum(1.0, blast_fit_y), color='darkred', linestyle='--', linewidth=3)
     ax1.axvline(x=crossover_x, color='purple', linestyle=':', linewidth=3)
@@ -239,9 +204,9 @@ def generate_figure_3_hybrid_crossover_plot(mlp_data, blast_data, blast_availabl
     ax1.set_xscale('log')
     ax1.set_ylim(bottom=0.2, top=1.01)
 
-    skale_data['Method'] = 'SKALE 356 Ensemble'
+    ensemble_data['Method'] = 'ensemble 356 ensemble'
     blast_data['Method'] = 'BLAST'
-    combined_df = pd.concat([skale_data, blast_data], ignore_index=True)
+    combined_df = pd.concat([ensemble_data, blast_data], ignore_index=True)
     combined_df['display_label'] = combined_df['num_train_seqs'].apply(lambda x: f'{x} genomes')
     high_data_df = combined_df[combined_df['num_train_seqs'] >= 1000]
 
@@ -251,7 +216,7 @@ def generate_figure_3_hybrid_crossover_plot(mlp_data, blast_data, blast_availabl
     x_labels = high_data_df['display_label'].unique()
     x_pos = np.arange(len(x_labels))
     width = 0.35
-    for i, method in enumerate(['SKALE 356 Ensemble', 'BLAST']):
+    for i, method in enumerate(['ensemble 356 ensemble', 'BLAST']):
         method_df = high_data_df[high_data_df['Method'] == method]
         if not method_df.empty:
             offset = width/2 * (1 if method == 'BLAST' else -1)
@@ -269,7 +234,7 @@ def generate_figure_3_hybrid_crossover_plot(mlp_data, blast_data, blast_availabl
     ax2.set_xticklabels(x_labels, rotation=45, ha='right')
     ax2.set_ylim(0.995, 1.001)
 
-    legend_elements = [ Patch(facecolor='deepskyblue', alpha=0.7, label='SKALE 356 (±1 Std Dev)'), Patch(facecolor='red', alpha=0.7, label='BLAST (±1 Std Dev)'), Line2D([0], [0], color='gray', lw=1.5, label='Min-Max Range'), Line2D([0], [0], color='blue', lw=3, label='SKALE 356 (Logistic Fit)'), Line2D([0], [0], color='darkred', lw=3, linestyle='--', label='BLAST (Linear Fit)') ]
+    legend_elements = [ Patch(facecolor='deepskyblue', alpha=0.7, label='ensemble 356 (±1 Std Dev)'), Patch(facecolor='red', alpha=0.7, label='BLAST (±1 Std Dev)'), Line2D([0], [0], color='gray', lw=1.5, label='Min-Max Range'), Line2D([0], [0], color='blue', lw=3, label='ensemble 356 (Logistic Fit)'), Line2D([0], [0], color='darkred', lw=3, linestyle='--', label='BLAST (Linear Fit)') ]
     fig.legend(handles=legend_elements, loc='upper left', fontsize=12, bbox_to_anchor=(0.01, 0.95))
 
     filename = output_dir / 'Figure_3_Crossover_and_Stability.png'
@@ -281,15 +246,15 @@ def generate_figure_3_hybrid_crossover_plot(mlp_data, blast_data, blast_availabl
 def generate_figure_4_speed_linechart(mlp_data, blast_data, blast_available, output_dir):
     """Generates the speed comparison line chart."""
     print("\n>>> GENERATING FIGURE 4: The Speed Chasm...")
-    skale_data = mlp_data[(mlp_data['run_type'] == 'ensemble') & (mlp_data['model_id_or_k'] == 25)].sort_values('num_train_seqs')
+    ensemble_data = mlp_data[(mlp_data['run_type'] == 'ensemble') & (mlp_data['model_id_or_k'] == 25)].sort_values('num_train_seqs')
 
     print("\n  --- DIAGNOSTICS FOR FIGURE 4 ---")
     print("  Data used for Speed Comparison Plot:")
-    merged_speed = pd.merge( skale_data[['num_train_seqs', 'prediction_time_s_mean']], blast_data[['num_train_seqs', 'prediction_time_s_mean']], on='num_train_seqs', suffixes=('_skale', '_blast') )
+    merged_speed = pd.merge( ensemble_data[['num_train_seqs', 'prediction_time_s_mean']], blast_data[['num_train_seqs', 'prediction_time_s_mean']], on='num_train_seqs', suffixes=('_ensemble', '_blast') )
     print(merged_speed.to_string(index=False))
 
     fig, ax = plt.subplots(figsize=(14, 8))
-    ax.plot(skale_data['num_train_seqs'], skale_data['prediction_time_s_mean'], marker='o', color='deepskyblue', label='SKALE 356 Ensemble')
+    ax.plot(ensemble_data['num_train_seqs'], ensemble_data['prediction_time_s_mean'], marker='o', color='deepskyblue', label='ensemble 356 ensemble')
     if blast_available:
         blast_plot_data = blast_data.sort_values('num_train_seqs')
         ax.plot(blast_plot_data['num_train_seqs'], blast_plot_data['prediction_time_s_mean'], marker='s', linestyle='--', color='red', label='BLAST')
@@ -328,8 +293,8 @@ def generate_figure_5_time_stability_heatmap(mlp_data, blast_data, blast_availab
     max_val = pivot_table_combined.max().max()
     norm = LogNorm(vmin=min_val, vmax=max_val)
     sns.heatmap( pivot_table_combined, annot=True, fmt=".3f", linewidths=.5, cmap=cmap, norm=norm, ax=ax, cbar_kws={'label': 'Prediction Time Std Dev (s) - Log Scale'} )
-    ax.set_title('Time Stability Landscape: SKALE vs. BLAST', fontsize=18, weight='bold')
-    ax.set_xlabel('Number of Models in Ensemble (k) / Method', fontsize=14)
+    ax.set_title('Time Stability Landscape: ensemble vs. BLAST', fontsize=18, weight='bold')
+    ax.set_xlabel('Number of Models in ensemble (k) / Method', fontsize=14)
     ax.set_ylabel('Number of Genomes in Training Set', fontsize=14)
 
     filename = output_dir / 'Figure_5_Time_Stability_Heatmap.png'
@@ -344,7 +309,7 @@ def generate_figure_5_time_stability_heatmap(mlp_data, blast_data, blast_availab
 
 if __name__ == "__main__":
     # Use pathlib to define input and output paths for cross-platform compatibility
-    output_dir = Path('figure1-5')
+    output_dir = Path('figure2-5')
     input_mlp_csv = Path('mlpSummaryResuts.csv')
     input_blast_csv = Path('blastSummary.csv')
 
@@ -368,4 +333,5 @@ if __name__ == "__main__":
     generate_figure_5_time_stability_heatmap(mlp_data, blast_data, blast_available, output_dir)
 
     print("\n\n--- SCRIPT FINISHED ---")
+
     print(f"All figures have been generated and saved to the '{output_dir}' directory.")
