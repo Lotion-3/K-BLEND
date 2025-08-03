@@ -16,7 +16,7 @@ Virtual Environment setup
 git clone https://github.com/Lotion-3/K-BLEND
 ```
 ```bash
-cd Ensemble
+cd K-BLEND
 ```
 ```bash
 sudo apt update
