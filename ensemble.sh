@@ -8,7 +8,7 @@
 
 # Check for the mandatory first argument (data directory)
 if [ -z "$1" ]; then
-    echo "Usage: ./SKALE356.sh <base_data_directory> [concurrent_jobs]"
+    echo "Usage: ./ensemble.sh <base_data_directory> [concurrent_jobs]"
     echo "  - <base_data_directory> : (Required) Path to the folder containing 'trainingFastas'."
     echo "  - [concurrent_jobs]     : (Optional) Number of parallel jobs to run."
     echo "                            Defaults to half the number of available CPU cores."
